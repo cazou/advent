@@ -13,7 +13,7 @@ fn main() -> Result<(), String> {
         Err(e) => return Err(e.to_string())
     }
 
-    match day3::run("/home/detlev/Sources/advent/test.txt") {
+    match day3::run("/home/detlev/Sources/advent/2021-03.txt") {
         Ok(_) => {},
         Err(e) => return Err(e.to_string())
     }
