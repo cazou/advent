@@ -1,5 +1,3 @@
-use std::fs;
-
 const WINDOW_SIZE: usize = 3;
 
 struct Window {

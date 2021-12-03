@@ -1,5 +1,3 @@
-use std::fs;
-
 enum Operation {
     Forward(usize),
     Up(usize),

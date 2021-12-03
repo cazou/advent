@@ -1,5 +1,3 @@
-use std::fs;
-
 const VALUE_SIZE: usize = 12;
 
 enum Sensor {
