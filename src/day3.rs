@@ -53,15 +53,8 @@ fn find_sensor_value(list: &Vec<usize>, bit_pos: usize, sensor: Sensor) -> Resul
     find_sensor_value(&list, bit_pos - 1, sensor)
 }
 
-pub fn run(inputfile: &str) -> Result<(), String> {
+pub fn run(contents: &str) -> Result<(), String> {
     print!("[Binary]...      ");
-
-    let contents = match fs::read_to_string(inputfile) {
-        Ok(c) => c,
-        Err(e) => {
-            return Err(e.to_string());
-        }
-    };
 
     // The number of bits at 1 in each position
     let mut list: Vec<usize> = vec![];

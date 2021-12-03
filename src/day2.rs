@@ -25,15 +25,8 @@ impl Operation {
     }
 }
 
-pub fn run(inputfile: &str) -> Result<(), String> {
+pub fn run(contents: &str) -> Result<(), String> {
     print!("[Dive]...        ");
-
-    let contents = match fs::read_to_string(inputfile) {
-        Ok(c) => c,
-        Err(e) => {
-            return Err(e.to_string());
-        }
-    };
 
     let mut forward = 0;
     let mut depth = 0;

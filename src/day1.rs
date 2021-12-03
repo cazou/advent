@@ -55,14 +55,8 @@ fn add_value_in_windows(windows: &mut Vec<Window>, value: usize) -> Option<usize
     ret
 }
 
-pub fn run(inputfile: &str) -> Result<(), String> {
+pub fn run(contents: &str) -> Result<(), String> {
     print!("[Sonar sweep]... ");
-
-    let contents = match fs::read_to_string(inputfile) {
-        Ok(c) => c,
-        Err(e) =>
-            return Err(e.to_string())
-    };
 
     let mut windows: Vec<Window> = vec![];
     let mut last_val: Option<usize> = None;
