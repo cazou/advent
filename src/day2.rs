@@ -57,7 +57,6 @@ pub fn run(inputfile: &str) -> Result<(), String> {
             Operation::Up(v) => aim -= v,
             Operation::Down(v) => aim += v,
         }
-
     }
 
     println!("{}", forward * depth);

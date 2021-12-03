@@ -35,7 +35,9 @@ impl Window {
     }
 }
 
-/// return true if the increase count must be incremented
+/// return an option that is either:
+/// None => No action to be taken
+/// Some(val: usize) => val is the next window value to compare with the previous one.
 fn add_value_in_windows(windows: &mut Vec<Window>, value: usize) -> Option<usize> {
     let mut ret = None;
 
