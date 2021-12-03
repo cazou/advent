@@ -8,7 +8,20 @@ enum Sensor {
 }
 
 // bit_pos is the bit pos to analyse
-fn find_sensor_value(l1: &Vec<usize>, l2: &Vec<usize>, bit_pos: usize, sensor: Sensor) -> Result<usize, String> {
+fn find_sensor_value(list: &Vec<usize>, bit_pos: usize, sensor: Sensor) -> Result<usize, String> {
+
+    let mut l1: Vec<usize> = vec![];
+    let mut l2: Vec<usize> = vec![];
+
+    // Generate the 2 lists
+    for val in list {
+        match val & (1 << bit_pos) {
+            0 => l1.push(*val),
+            _ => l2.push(*val),
+        };
+    }
+
+    // Select the lists to generate each sensor
     let &mut o2_list;
     let &mut co2_list;
 
@@ -37,35 +50,7 @@ fn find_sensor_value(l1: &Vec<usize>, l2: &Vec<usize>, bit_pos: usize, sensor: S
         return Ok(list[0]);
     }
 
-    let mut first_bit_0: Vec<usize> = vec![];
-    let mut first_bit_1: Vec<usize> = vec![];
-
-    // Generate the 2 lists and call this function again
-    for val in list {
-        match val & (1 << bit_pos) {
-            0 => first_bit_0.push(*val),
-            _ => first_bit_1.push(*val),
-        };
-    }
-
-    if bit_pos == 0 {
-        if first_bit_0.len() > 1 || first_bit_1.len() > 1 {
-            return Err(String::from("I cannot decide"));
-        }
-        return if first_bit_0[0] & 1 != 0 {
-            match sensor {
-                Sensor::O2 => Ok(first_bit_0[0]),
-                Sensor::Co2 => Ok(first_bit_1[0]),
-            }
-        } else {
-            match sensor {
-                Sensor::O2 => Ok(first_bit_1[0]),
-                Sensor::Co2 => Ok(first_bit_0[0]),
-            }
-        }
-    }
-
-    find_sensor_value(&first_bit_0, &first_bit_1, bit_pos - 1, sensor)
+    find_sensor_value(&list, bit_pos - 1, sensor)
 }
 
 pub fn run(inputfile: &str) -> Result<(), String> {
@@ -78,19 +63,13 @@ pub fn run(inputfile: &str) -> Result<(), String> {
         }
     };
 
-    // The number of values (lines) in the report
-    let mut val_count = 0;
-
     // The number of bits at 1 in each position
-    let mut first_bit_0: Vec<usize> = vec![];
-    let mut first_bit_1: Vec<usize> = vec![];
+    let mut list: Vec<usize> = vec![];
 
     for line in contents.split('\n') {
         if line.is_empty() {
             continue;
         }
-
-        val_count += 1;
 
         let cs: Vec<char> = line.chars().collect();
         let mut val = 0;
@@ -101,14 +80,11 @@ pub fn run(inputfile: &str) -> Result<(), String> {
             }
         }
 
-        match val & (1 << (VALUE_SIZE-1)) {
-            0 => first_bit_0.push(val),
-            _ => first_bit_1.push(val),
-        };
+        list.push(val);
     }
 
-    let o2 = find_sensor_value(&first_bit_0, &first_bit_1, (VALUE_SIZE-2), Sensor::O2).unwrap();
-    let co2 = find_sensor_value(&first_bit_0, &first_bit_1, (VALUE_SIZE-2), Sensor::Co2).unwrap();
+    let o2 = find_sensor_value(&list, VALUE_SIZE - 1, Sensor::O2).unwrap();
+    let co2 = find_sensor_value(&list, VALUE_SIZE - 1, Sensor::Co2).unwrap();
 
     println!("O2: {}, Co2: {} -> {}", o2, co2, o2 * co2);
 
