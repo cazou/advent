@@ -146,10 +146,11 @@ pub fn run(contents: &str) -> Result<(), String> {
             i += 1;
         }
 
-        i = 0;
+        // Start by removing the last one
+        to_remove.reverse();
+
         for idx in to_remove {
-            boards.remove(idx - i);
-            i += 1;
+            boards.remove(idx);
         }
     }
 
