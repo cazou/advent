@@ -26,7 +26,7 @@ struct Board {
 impl Board {
     pub fn new() -> Board {
         Board {
-            values: [[BoardElement {value: 0, checked: false}; 5]; 5],
+            values: [[BoardElement::new(0); 5]; 5],
             next_line: 0,
             row_check_count: [0; BOARD_SIZE],
             col_check_count: [0; BOARD_SIZE],
