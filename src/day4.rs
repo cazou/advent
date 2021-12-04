@@ -111,7 +111,7 @@ pub fn run(contents: &str) -> Result<(), String> {
             continue
         }
 
-        let mut board = boards.last_mut().unwrap();
+        let board = boards.last_mut().unwrap();
         board.add_line(line);
 
         if board.ready() {
