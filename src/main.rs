@@ -2,6 +2,7 @@ mod day1;
 mod day2;
 mod day3;
 mod day4;
+mod day5;
 mod day6;
 mod day7;
 
@@ -22,6 +23,11 @@ fn main() -> Result<(), String> {
     }
 
     match day4::run(include_str!("../inputs/2021-04.txt")) {
+        Ok(_) => {},
+        Err(e) => return Err(e.to_string())
+    }
+
+    match day5::run(include_str!("../inputs/2021-05.txt")) {
         Ok(_) => {},
         Err(e) => return Err(e.to_string())
     }
