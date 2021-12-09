@@ -2,7 +2,7 @@ fn align_crabs_to(crabs: &Vec<usize>, pos: usize) -> usize
 {
     let mut fuel: usize = 0;
     for crab in crabs {
-        let f = (*crab as isize - pos as isize);
+        let f = *crab as isize - pos as isize;
         fuel += fuel_to_move(f.abs() as usize);
     }
 
@@ -25,7 +25,7 @@ pub fn run(contents: &str) -> Result<(), String> {
     print!("[Crabs]...       ");
 
     let mut crabs = vec![];
-    let mut min: usize = 0; //Because there is a 0 in the input (that's a cheat)
+    let min: usize = 0; //Because there is a 0 in the input (that's a cheat)
     let mut max: usize = 0;
 
     // Load input data

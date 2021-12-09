@@ -15,8 +15,8 @@ fn add_points_from_line(line: &str, list: &mut Vec<[u8; 1000]>, intersections: &
         // Manage diagonal
         let len: isize = p1[0] as isize - p2[0] as isize;
         let len = len.abs();
-        let mut x_step= 0;
-        let mut y_step = 0;
+        let x_step;
+        let y_step;
 
         if p1[0] < p2[0] {
             x_step = 1;

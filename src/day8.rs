@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+#[allow(dead_code)]
 struct Observation {
     patterns: Vec<String>,
     outputs: Vec<String>,

@@ -1,6 +1,3 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 mod day1;
 mod day2;
 mod day3;

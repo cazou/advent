@@ -1,6 +1,4 @@
-use std::cell::RefCell;
 use std::collections::BTreeSet;
-use std::rc::Rc;
 
 fn is_min(map: &Vec<Vec<u8>>, pos: [usize; 2]) -> bool {
     let i = pos[0];
@@ -35,10 +33,6 @@ fn find_connected(map: &mut Vec<Vec<u8>>, pos: [usize; 2], entries: &mut BTreeSe
 }
 
 fn build_basin(map: &mut Vec<Vec<u8>>, pos: [usize; 2]) -> usize {
-    let i = pos[0];
-    let j = pos[1];
-    let entry = &map[i][j];
-
     let mut entries = BTreeSet::new();
 
     find_connected(map, pos, &mut entries);

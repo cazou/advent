@@ -52,7 +52,7 @@ pub fn run(contents: &str) -> Result<(), String> {
         list.push(Fish::from_age(val));
     }
 
-    for day in 0..80 {
+    for _day in 0..80 {
         let fish_count = list.len();
 
         for i in 0..fish_count {
@@ -101,7 +101,7 @@ pub fn run2(contents: &str) -> Result<(), String> {
         fishes[val] += 1;
     }
 
-    for day in 0..256 {
+    for _day in 0..256 {
         fishes = new_day(&fishes);
     }
 
