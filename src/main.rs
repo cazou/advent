@@ -66,5 +66,10 @@ fn main() -> Result<(), String> {
         Err(e) => return Err(e.to_string())
     }
 
+    match day11::run(include_str!("../inputs/2021-11.txt")) {
+        Ok(_) => {},
+        Err(e) => return Err(e.to_string())
+    }
+
     Ok(())
 }
