@@ -57,7 +57,7 @@ fn run_step(octopuses: &mut Vec<Vec<usize>>) -> usize {
 
 fn all_flash(octopuses: &Vec<Vec<usize>>) -> bool {
     for i in 0..10 {
-        if octopuses[i].iter().any(|x| x != 0) {
+        if octopuses[i].iter().any(|x| *x != 0) {
             return false
         }
     }
