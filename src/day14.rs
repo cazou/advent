@@ -1,4 +1,3 @@
-use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
@@ -52,7 +51,7 @@ fn count_letters(template: &Vec<char>, rules: &Vec<Rule>, steps: usize) -> usize
 
     let mut new_map: HashMap<String, usize> = map.clone();
 
-    for i in 0..steps {
+    for _ in 0..steps {
         for (k, v) in &map {
             if *v == 0 {
                 continue;
@@ -70,7 +69,8 @@ fn count_letters(template: &Vec<char>, rules: &Vec<Rule>, steps: usize) -> usize
                                 new_map.insert(key1, *v);
                             },
                             Some(n) => {
-                                new_map.insert(key1, *n + *v);
+                                let new_n = *n;
+                                new_map.insert(key1, new_n + *v);
                             },
                         };
 
@@ -79,13 +79,15 @@ fn count_letters(template: &Vec<char>, rules: &Vec<Rule>, steps: usize) -> usize
                                 new_map.insert(key2, *v);
                             },
                             Some(n) => {
-                                new_map.insert(key2, *n + *v);
+                                let new_n = *n;
+                                new_map.insert(key2, new_n + *v);
                             },
                         };
 
                         // Decrease this key
                         if let Some(n) = new_map.get(k) {
-                            new_map.insert(k.clone(), *n - *v);
+                            let new_n = *n;
+                            new_map.insert(k.clone(), new_n - *v);
                         }
                     }
                 }

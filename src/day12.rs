@@ -24,7 +24,6 @@ struct Graph {
 }
 
 impl Graph {
-
     fn get_cave(caves: &mut Vec<Rc<RefCell<Cave>>>, name: &String) -> Rc<RefCell<Cave>> {
         match caves.iter().find(|x| *x.borrow().name == *name.as_str()) {
             Some(c) => Rc::clone(c),
@@ -42,8 +41,8 @@ impl Graph {
 
         for link in graph.lines() {
             let linked_caves: Vec<&str> = link.split('-').collect();
-            let mut cave0 = Graph::get_cave(&mut caves, &String::from(linked_caves[0]));
-            let mut cave1 = Graph::get_cave(&mut caves, &String::from(linked_caves[1]));
+            let cave0 = Graph::get_cave(&mut caves, &String::from(linked_caves[0]));
+            let cave1 = Graph::get_cave(&mut caves, &String::from(linked_caves[1]));
             cave0.borrow_mut().add_neighbour(Rc::clone(&cave1));
             cave1.borrow_mut().add_neighbour(Rc::clone(&cave0));
 

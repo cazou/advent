@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::BinaryHeap;
 
 fn find_neighbors(cases: &Vec<Vec<usize>>, i: usize, j: usize) -> Vec<[usize; 2]> {
     let mut points = vec![];
@@ -39,7 +39,7 @@ impl PartialOrd for State {
 }
 
 fn find_path(cases: &Vec<Vec<usize>>) -> Option<usize> {
-    let mut dist: Vec<Vec<usize>> = (0..cases.len()).map(|e| (0..cases.len()).map(|_| usize::MAX).collect() ).collect();
+    let mut dist: Vec<Vec<usize>> = (0..cases.len()).map(|_| (0..cases.len()).map(|_| usize::MAX).collect() ).collect();
     let mut heap = BinaryHeap::new();
 
     dist[0][0] = 0;
@@ -87,7 +87,6 @@ pub fn run(contents: &str) -> Result<(), String> {
     let mut cases2: Vec<Vec<usize>> = vec![];
     for v in &cases {
         cases2.push(vec![]);
-        let len = v.len();
         for j in 0..5 {
             let mut new_vec: Vec<usize> = v.iter().map(|x| if (*x + j) >= 10 {((*x + j) % 10) + 1} else {*x + j}).collect();
             cases2.last_mut().unwrap().append(&mut new_vec);
