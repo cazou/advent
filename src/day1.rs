@@ -1,18 +1,16 @@
-use std::cmp::Ordering;
-use std::str::FromStr;
 use anyhow::{bail, ensure, Result};
+use std::cmp::Ordering;
 use std::collections::binary_heap::BinaryHeap;
+use std::str::FromStr;
 
 #[derive(Eq, PartialEq)]
 struct Elf {
-    calories: usize
+    calories: usize,
 }
 
 impl Elf {
     pub fn new() -> Elf {
-        Elf {
-            calories:0
-        }
+        Elf { calories: 0 }
     }
 
     pub fn add(&mut self, calories: usize) {
@@ -33,14 +31,14 @@ impl PartialOrd for Elf {
 }
 
 struct Inventory {
-    elves: BinaryHeap<Elf>
+    elves: BinaryHeap<Elf>,
 }
 
 impl Inventory {
     pub fn max(&self) -> Result<usize> {
         match self.elves.peek() {
             Some(e) => Ok(e.calories),
-            None => bail!("Inventory is empty")
+            None => bail!("Inventory is empty"),
         }
     }
 
@@ -73,7 +71,8 @@ impl FromStr for Inventory {
                 elves.push(current_elf);
                 current_elf = Elf::new();
             } else {
-                current_elf.add(line.parse().unwrap())
+                let val = line.parse().unwrap();
+                current_elf.add(val);
             }
         }
 
@@ -81,9 +80,7 @@ impl FromStr for Inventory {
             elves.push(current_elf);
         }
 
-        Ok(Inventory {
-            elves
-        })
+        Ok(Inventory { elves })
     }
 }
 
