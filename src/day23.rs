@@ -1,21 +1,18 @@
 use std::cmp::{max, min, Ordering};
-use std::collections::{BinaryHeap, BTreeSet};
+use std::collections::{BTreeSet, BinaryHeap};
 use std::fmt::{Display, Formatter};
 
 //TODO: Add cave depth variable (autodetect when loading input)
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 enum AmphipodType {
     Amber,
     Bronze,
     Copper,
-    Desert
+    Desert,
 }
 
-#[derive(Clone)]
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Amphipod {
     a_type: AmphipodType,
     position: [isize; 2],
@@ -28,12 +25,12 @@ impl Amphipod {
             'B' => AmphipodType::Bronze,
             'C' => AmphipodType::Copper,
             'D' => AmphipodType::Desert,
-            _ => AmphipodType::Amber //Should be an error
+            _ => AmphipodType::Amber, //Should be an error
         };
 
         Amphipod {
             a_type,
-            position: [x, y]
+            position: [x, y],
         }
     }
 
@@ -42,7 +39,7 @@ impl Amphipod {
             AmphipodType::Amber => 3,
             AmphipodType::Bronze => 5,
             AmphipodType::Copper => 7,
-            AmphipodType::Desert => 9
+            AmphipodType::Desert => 9,
         }
     }
 
@@ -51,7 +48,7 @@ impl Amphipod {
             AmphipodType::Amber => 1,
             AmphipodType::Bronze => 10,
             AmphipodType::Copper => 100,
-            AmphipodType::Desert => 1000
+            AmphipodType::Desert => 1000,
         }
     }
 
@@ -60,8 +57,9 @@ impl Amphipod {
             AmphipodType::Amber => "A",
             AmphipodType::Bronze => "B",
             AmphipodType::Copper => "C",
-            AmphipodType::Desert => "D"
-        }.to_string()
+            AmphipodType::Desert => "D",
+        }
+        .to_string()
     }
 }
 
@@ -86,13 +84,18 @@ struct State {
 
 impl State {
     fn solved(&self) -> bool {
-        !self.amphipods.iter().any(|a| a.cave_pos() != a.position[0] || a.position[1] == 1)
+        !self
+            .amphipods
+            .iter()
+            .any(|a| a.cave_pos() != a.position[0] || a.position[1] == 1)
     }
 }
 
 impl PartialEq<Self> for State {
     fn eq(&self, other: &Self) -> bool {
-        self.score == other.score && self.amphipods.len() == other.amphipods.len() && self.amphipods == other.amphipods
+        self.score == other.score
+            && self.amphipods.len() == other.amphipods.len()
+            && self.amphipods == other.amphipods
     }
 }
 
@@ -130,7 +133,7 @@ impl Burrow {
         let mut ret = Burrow {
             amphipods: vec![],
             positions: vec![],
-            max_y: 0
+            max_y: 0,
         };
 
         for line in input.lines() {
@@ -142,8 +145,8 @@ impl Burrow {
                         ret.amphipods.push(Amphipod::new(c, x, y));
                         ret.positions.push([x, y]);
                         ret.max_y = y;
-                    },
-                    _ => {},
+                    }
+                    _ => {}
                 };
                 x += 1;
             }
@@ -153,49 +156,73 @@ impl Burrow {
         Ok(ret)
     }
 
+    // TODO: Add incentive: If it is possible to get closer to the correct cave in the corridor, do that
+    // double priority ???
     fn get_reachable_pos(&self, amphipod: &Amphipod, amphipods: &Vec<Amphipod>) -> Vec<[isize; 2]> {
         let mut ret = vec![];
         let mut pos_to_check = vec![];
         let x = amphipod.position[0];
         let y = amphipod.position[1];
 
+        //println!("checking ({},{})", x, y);
+
         if y == 1 {
             // Check if there is a blocker on the way
             let r1 = min(amphipod.cave_pos(), x);
             let r2 = max(amphipod.cave_pos(), x);
-            if amphipods.iter().any(|a| a.position != [x, y] && (r1..=r2).contains(&a.position[0]) && a.position[1] == 1) {
+            if amphipods.iter().any(|a| {
+                a.position != [x, y] && (r1..=r2).contains(&a.position[0]) && a.position[1] == 1
+            }) {
                 return vec![];
             }
 
             // Check if there is is no room in the destination cave
-            if amphipods.iter().any(|a| a.position[0] == amphipod.cave_pos() && a.position[1] > 1 && amphipod.cave_pos() != a.cave_pos()) {
+            if amphipods.iter().any(|a| {
+                a.position[0] == amphipod.cave_pos()
+                    && a.position[1] > 1
+                    && amphipod.cave_pos() != a.cave_pos()
+            }) {
                 return vec![];
             }
             // Go the further down possible
             for i in 2..=self.max_y {
-                if !amphipods.iter().any(|a| a.position == [amphipod.cave_pos(), self.max_y - i + 2]) {
+                if !amphipods
+                    .iter()
+                    .any(|a| a.position == [amphipod.cave_pos(), self.max_y - i + 2])
+                {
                     ret.push([amphipod.cave_pos(), self.max_y - i + 2]);
                     break;
                 }
             }
             return ret;
-        } else if amphipods.iter().any(|a| a.position[0] == x && a.position[1] < y) {
+        } else if amphipods
+            .iter()
+            .any(|a| a.position[0] == x && a.position[1] < y)
+        {
             // We are blocked in the cave, can't move
+            //println!("blocked ({},{})", x, y);
             return vec![];
-        } else if amphipod.cave_pos() == x && amphipods.iter().any(|a| a.position[0] == x && a.position[1] < y && a.cave_pos() != x) {
+        } else if amphipod.cave_pos() == x
+            && amphipods
+                .iter()
+                .any(|a| a.position[0] == x && a.position[1] > y && a.cave_pos() != x)
+        {
             // We are blocking amphipods that are in the wrong cave, gotta move
+            //println!("blocking");
             pos_to_check.push([x, 1]);
         } else if amphipod.cave_pos() == x {
             // We are at the right place and not blocking anyone
+            //println!("Right place");
             return vec![];
         } else {
+            //println!("Need to move");
             pos_to_check.push([x, y]);
         }
 
         while !pos_to_check.is_empty() {
             let pos = pos_to_check.pop().unwrap();
 
-            for p_x in pos[0]-1..=pos[0]+1 {
+            for p_x in pos[0] - 1..=pos[0] + 1 {
                 let p_y = 1;
                 if p_x == x && p_y == y {
                     continue;
@@ -217,29 +244,42 @@ impl Burrow {
         }
 
         // Don't let an amphipod in front of a cave
-        let ret2 = ret.into_iter().filter(|p| !([3,5,7,9].contains(&p[0]) && p[1] == 1)).collect();
-        println!("{} -> {:?}", amphipod, ret2);
+        //println!("{} -> {:?}", amphipod, ret);
+        //ret
+        let ret2 = ret
+            .into_iter()
+            .filter(|p| !([3, 5, 7, 9].contains(&p[0]) && p[1] == 1))
+            .collect();
+        //println!("{} -> {:?}", amphipod, ret2);
         ret2
     }
 
     fn sort(&mut self) -> usize {
         let mut heap = BinaryHeap::new();
-        let mut set = BTreeSet::new();
+        //let mut set = BTreeSet::new();
 
         heap.push(State {
             amphipods: self.amphipods.clone(),
             moves: vec![],
             score: 0,
-            max_y: self.max_y
+            max_y: self.max_y,
         });
-        print!("{}", heap.peek().unwrap());
 
-        while heap.len() > 0 {
+        let mut count = 0;
+        while !heap.is_empty() {
+            /*println!(" ** Heap has {} states **", heap.len());
+            if count == 2 {
+                break;
+            }
+            count += 1;
+            for s in &heap {
+                println!(" --> {}", s.score);
+                print!("{}", s);
+            }*/
             let state = heap.pop().unwrap();
-            set.remove(&state);
-            assert_eq!(heap.len(), set.len());
 
             if state.solved() {
+                println!("SOLVED !");
                 print!("{}", state);
                 return state.score;
             }
@@ -250,19 +290,30 @@ impl Burrow {
                 for pos in self.get_reachable_pos(a, &state.amphipods) {
                     //println!("{} -> {:?}", a, pos);
                     let mut new_map = state.amphipods.clone();
-                    let score_delta = a.energy_cost() * ((a.position[0]-pos[0]).abs() + (a.position[1]-pos[1]).abs()) as usize;
-                    let mut new_amphipod = new_map.iter_mut().find(|c| c.position == [a.position[0],a.position[1]]).unwrap();
+                    let score_delta = a.energy_cost()
+                        * ((a.position[0] - pos[0]).abs() + (a.position[1] - pos[1]).abs())
+                            as usize;
+                    let mut new_amphipod = new_map
+                        .iter_mut()
+                        .find(|c| c.position == [a.position[0], a.position[1]])
+                        .unwrap();
                     let mut new_moves = state.moves.clone();
-                    new_moves.push([new_amphipod.position[0], new_amphipod.position[1], pos[0], pos[1]]);
+                    new_moves.push([
+                        new_amphipod.position[0],
+                        new_amphipod.position[1],
+                        pos[0],
+                        pos[1],
+                    ]);
                     new_amphipod.position = pos;
 
-                    let new_state1 = State { amphipods: new_map.clone(), score: state.score + score_delta, moves: new_moves, max_y: self.max_y};
-                    println!("{}", new_state1);
-                    let new_state2 = State { amphipods: new_map, score: state.score + score_delta, moves: vec![], max_y: self.max_y};
-                    if !set.contains(&new_state1) {
-                        heap.push(new_state1);
-                        set.insert(new_state2);
-                    }
+                    let new_state = State {
+                        amphipods: new_map.clone(),
+                        score: state.score + score_delta,
+                        moves: new_moves,
+                        max_y: self.max_y,
+                    };
+
+                    heap.push(new_state);
                 }
             }
         }
@@ -270,17 +321,17 @@ impl Burrow {
     }
 }
 
-
 impl Display for State {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        for y in 0..=self.max_y+1 {
+        for y in 0..=self.max_y + 1 {
             for x in 0..=12 {
                 if let Some(a) = self.amphipods.iter().find(|a| a.position == [x, y]) {
                     if let Err(e) = write!(f, "{}", a.letter()) {
                         return Err(e);
                     }
-                } else if (y == 1 && (1..12).contains(&x)) ||
-                          ((2..=self.max_y).contains(&y) && [3,5,7,9].contains(&x)) {
+                } else if (y == 1 && (1..12).contains(&x))
+                    || ((2..=self.max_y).contains(&y) && [3, 5, 7, 9].contains(&x))
+                {
                     if let Err(e) = write!(f, ".") {
                         return Err(e);
                     }
@@ -292,7 +343,7 @@ impl Display for State {
         }
 
         for m in &self.moves {
-            if let Err(e) = writeln!(f, "{},{} -> {},{}", m[0],m[1],m[2],m[3]) {
+            if let Err(e) = writeln!(f, "{},{} -> {},{}", m[0], m[1], m[2], m[3]) {
                 return Err(e);
             }
         }
@@ -307,7 +358,6 @@ impl Display for State {
 }
 
 pub fn run() -> Result<(), String> {
-
     let example = "\
 #############
 #...........#
@@ -326,9 +376,9 @@ pub fn run() -> Result<(), String> {
 
     let debug2 = "\
 #############
-#...B.A.....#
-###.#.#C#D###
-  #A#B#C#D#
+#...........#
+###A#B#C#D###
+  #A#B#D#C#
   #########";
 
     let input1 = "\
@@ -346,8 +396,16 @@ pub fn run() -> Result<(), String> {
   #A#D#C#A#
   #B#A#B#C#
   #########";
+    let test = "\
+#############
+#A.........D#
+###B#C#B#.###
+  #D#C#B#.#
+  #D#B#A#C#
+  #A#D#C#A#
+  #########";
 
-    let mut burrow = Burrow::from_input(debug2).unwrap();
+    let mut burrow = Burrow::from_input(input2).unwrap();
     //println!("{:?}\n{:?}\n{:?}", burrow.positions,
     //         burrow.get_reachable_pos(burrow.amphipods.iter().find(|a| a.position == [8,1]).unwrap(), &burrow.amphipods),
     //         burrow.get_reachable_pos(burrow.amphipods.iter().find(|a| a.position == [6,1]).unwrap(), &burrow.amphipods));
