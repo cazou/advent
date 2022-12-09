@@ -1,4 +1,5 @@
-use anyhow::Result;
+use crate::traits::AdventOfCode;
+use anyhow::{bail, Result};
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::str::FromStr;
@@ -9,7 +10,7 @@ enum Command {
 }
 
 impl FromStr for Command {
-    type Err = ();
+    type Err = anyhow::Error;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         if s.starts_with("$ ls") {
@@ -17,7 +18,7 @@ impl FromStr for Command {
         } else if s.starts_with("$ cd") {
             Ok(Command::Cd(s.split_at(5).1.to_string()))
         } else {
-            Err(())
+            bail!("Invalid command {}", s);
         }
     }
 }
@@ -137,7 +138,7 @@ impl FileSystem {
 }
 
 impl FromStr for FileSystem {
-    type Err = ();
+    type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let root = Rc::new(RefCell::new(Dir {
@@ -149,7 +150,6 @@ impl FromStr for FileSystem {
         let mut current_cmd: Option<Command> = None;
 
         for line in s.lines() {
-            //println!("{}", line);
             match &current_cmd {
                 None => {
                     current_cmd = Some(line.parse()?);
@@ -161,17 +161,13 @@ impl FromStr for FileSystem {
                         Dir::mkdir(&current_dir, line.split_at(4).1);
                     } else {
                         let info: Vec<&str> = line.splitn(2, ' ').collect();
-                        current_dir
-                            .borrow_mut()
-                            .touch(info[1], info[0].parse().unwrap());
-                        //println!("Line ignored: {}", line);
+                        current_dir.borrow_mut().touch(info[1], info[0].parse()?);
                     }
                 }
                 _ => {}
             }
 
             if let Some(Command::Cd(dir)) = &current_cmd {
-                //println!("cd '{}'", dir);
                 current_dir = Dir::cd(&current_dir, dir);
                 current_cmd = None;
             }
@@ -183,11 +179,20 @@ impl FromStr for FileSystem {
     }
 }
 
-pub fn run(input: &str) -> Result<()> {
-    let mut fs: FileSystem = input.parse().unwrap();
+pub struct Day7;
 
-    println!("Small dirs sum: {}", fs.max_size(100000));
-    println!("Deleted dir size: {}", fs.find_dir_to_delete());
+impl AdventOfCode for Day7 {
+    fn day(&self) -> u8 {
+        7
+    }
 
-    Ok(())
+    fn run1(&mut self, input: Option<String>) -> Result<String> {
+        let mut fs: FileSystem = input.unwrap().parse().unwrap();
+        Ok(fs.max_size(100000).to_string())
+    }
+
+    fn run2(&mut self, input: Option<String>) -> Result<String> {
+        let mut fs: FileSystem = input.unwrap().parse().unwrap();
+        Ok(fs.find_dir_to_delete().to_string())
+    }
 }

@@ -1,3 +1,4 @@
+use crate::traits::AdventOfCode;
 use anyhow::Result;
 use regex::Regex;
 
@@ -25,46 +26,60 @@ fn parse_stacks(input: &str, stacks: &mut Vec<Vec<char>>) -> Result<usize> {
     Ok(0)
 }
 
-pub fn run(input: &str) -> Result<()> {
+pub fn run(input: &str, crane_id: usize) -> Result<String> {
     let re = Regex::new(r"move (?P<num>\d*) from (?P<from>\d*) to (?P<to>\d*)").unwrap();
-    for crane_id in [9000, 9001] {
-        let mut stacks: Vec<Vec<char>> = vec![];
-        let move_line = parse_stacks(input, &mut stacks)?;
-        let mut l_count = 0;
 
-        for line in input.lines() {
-            if l_count <= move_line {
-                l_count += 1;
-                continue;
-            }
+    let mut stacks: Vec<Vec<char>> = vec![];
+    let move_line = parse_stacks(input, &mut stacks)?;
+    let mut l_count = 0;
 
-            let caps = re.captures(line).unwrap();
-            let num = caps.name("num").unwrap().as_str().parse::<usize>()?;
-            let from = caps.name("from").unwrap().as_str().parse::<usize>()?;
-            let to = caps.name("to").unwrap().as_str().parse::<usize>()?;
-
-            let mut tmp = vec![];
-
-            for _ in 0..num {
-                tmp.push(stacks[from - 1].pop().unwrap());
-            }
-
-            if crane_id == 9001 {
-                tmp.reverse();
-            }
-
-            for e in tmp {
-                stacks[to - 1].push(e);
-            }
+    for line in input.lines() {
+        if l_count <= move_line {
+            l_count += 1;
+            continue;
         }
 
-        let empty = ' ';
-        print!("CrateMover {}: ", crane_id);
-        for s in &stacks {
-            print!("{}", s.last().unwrap_or(&empty));
+        let caps = re.captures(line).unwrap();
+        let num = caps.name("num").unwrap().as_str().parse::<usize>()?;
+        let from = caps.name("from").unwrap().as_str().parse::<usize>()?;
+        let to = caps.name("to").unwrap().as_str().parse::<usize>()?;
+
+        let mut tmp = vec![];
+
+        for _ in 0..num {
+            tmp.push(stacks[from - 1].pop().unwrap());
         }
-        println!();
+
+        if crane_id == 9001 {
+            tmp.reverse();
+        }
+
+        for e in tmp {
+            stacks[to - 1].push(e);
+        }
     }
 
-    Ok(())
+    let empty = ' ';
+    let mut ret = String::new();
+    for s in &stacks {
+        ret.push(*s.last().unwrap_or(&empty));
+    }
+
+    Ok(ret)
+}
+
+pub struct Day5;
+
+impl AdventOfCode for Day5 {
+    fn day(&self) -> u8 {
+        5
+    }
+
+    fn run1(&mut self, input: Option<String>) -> Result<String> {
+        run(&input.unwrap(), 9000)
+    }
+
+    fn run2(&mut self, input: Option<String>) -> Result<String> {
+        run(&input.unwrap(), 9001)
+    }
 }

@@ -1,29 +1,30 @@
+use crate::traits::AdventOfCode;
+use anyhow::{bail, Result};
 use std::str::FromStr;
-use anyhow::Result;
 
 enum Outcome {
     Loose,
     Draw,
-    Win
+    Win,
 }
 
 impl FromStr for Outcome {
-    type Err = String;
+    type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         return match s.trim() {
             "X" => Ok(Outcome::Loose),
             "Y" => Ok(Outcome::Draw),
             "Z" => Ok(Outcome::Win),
-            _ => Err(s.to_string() + " is not a valid outcome")
-        }
+            _ => bail!("{} is not a valid outcome", s),
+        };
     }
 }
 
 enum Move {
     Rock,
     Paper,
-    Scissors
+    Scissors,
 }
 
 impl Move {
@@ -42,9 +43,13 @@ impl Move {
 
     fn win(&self, other: &Move) -> usize {
         match (self, other) {
-            (Move::Rock, Move::Paper) | (Move::Paper, Move::Scissors) | (Move::Scissors, Move::Rock) => 0,
-            (Move::Rock, Move::Rock) | (Move::Paper, Move::Paper) | (Move::Scissors, Move::Scissors) => 3,
-            _ => 6
+            (Move::Rock, Move::Paper)
+            | (Move::Paper, Move::Scissors)
+            | (Move::Scissors, Move::Rock) => 0,
+            (Move::Rock, Move::Rock)
+            | (Move::Paper, Move::Paper)
+            | (Move::Scissors, Move::Scissors) => 3,
+            _ => 6,
         }
     }
 
@@ -61,24 +66,23 @@ impl Move {
             (Move::Scissors, Outcome::Win) => Move::Rock,
         }
     }
-
 }
 
 impl FromStr for Move {
-    type Err = String;
+    type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         return match s.trim() {
             "A" => Ok(Move::Rock),
             "B" => Ok(Move::Paper),
             "C" => Ok(Move::Scissors),
-            _ => Err(s.to_string() + " is not a valid move")
-        }
+            _ => bail!("{} is not a valid move", s),
+        };
     }
 }
 
 struct Strategy {
-    rounds: Vec<(Move, Move)>
+    rounds: Vec<(Move, Move)>,
 }
 
 impl Strategy {
@@ -94,7 +98,7 @@ impl Strategy {
 }
 
 impl FromStr for Strategy {
-    type Err = String;
+    type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut rounds = vec![];
@@ -107,16 +111,24 @@ impl FromStr for Strategy {
             rounds.push((m1, m2));
         }
 
-        Ok(Strategy {
-            rounds
-        })
+        Ok(Strategy { rounds })
     }
 }
 
-pub fn run(input: &str) -> Result<()> {
-    let strategy: Strategy = input.parse().unwrap();
+pub struct Day2;
 
-    println!("Points: {}", strategy.play());
+impl AdventOfCode for Day2 {
+    fn day(&self) -> u8 {
+        2
+    }
 
-    Ok(())
+    fn run1(&mut self, _input: Option<String>) -> Result<String> {
+        Ok("N/A".to_string())
+    }
+
+    fn run2(&mut self, input: Option<String>) -> Result<String> {
+        let strategy: Strategy = input.unwrap().parse()?;
+
+        Ok(strategy.play().to_string())
+    }
 }

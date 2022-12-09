@@ -1,3 +1,4 @@
+use crate::traits::AdventOfCode;
 use anyhow::{bail, ensure, Result};
 use std::cmp::Ordering;
 use std::collections::binary_heap::BinaryHeap;
@@ -14,7 +15,7 @@ impl Elf {
     }
 
     pub fn add(&mut self, calories: usize) {
-        self.calories = self.calories + calories;
+        self.calories += calories;
     }
 }
 
@@ -51,7 +52,7 @@ impl Inventory {
                 break;
             }
             count += 1;
-            cal = cal + elf.calories;
+            cal += elf.calories;
         }
 
         ensure!(count == 3, "Not enough Elves");
@@ -61,7 +62,7 @@ impl Inventory {
 }
 
 impl FromStr for Inventory {
-    type Err = String;
+    type Err = anyhow::Error;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         let mut elves = BinaryHeap::new();
@@ -71,7 +72,7 @@ impl FromStr for Inventory {
                 elves.push(current_elf);
                 current_elf = Elf::new();
             } else {
-                let val = line.parse().unwrap();
+                let val = line.parse()?;
                 current_elf.add(val);
             }
         }
@@ -84,11 +85,22 @@ impl FromStr for Inventory {
     }
 }
 
-pub fn run(input: &str) -> Result<()> {
-    let inventory: Inventory = input.parse().unwrap();
+pub struct Day1;
 
-    println!("Maximum: {}", inventory.max()?);
-    println!("Maximum of 3: {}", inventory.max3()?);
+impl AdventOfCode for Day1 {
+    fn day(&self) -> u8 {
+        1
+    }
 
-    Ok(())
+    fn run1(&mut self, input: Option<String>) -> Result<String> {
+        let inventory: Inventory = input.unwrap().parse()?;
+
+        Ok(inventory.max()?.to_string())
+    }
+
+    fn run2(&mut self, input: Option<String>) -> Result<String> {
+        let inventory: Inventory = input.unwrap().parse()?;
+
+        Ok(inventory.max3()?.to_string())
+    }
 }

@@ -1,7 +1,8 @@
+use crate::traits::AdventOfCode;
 use anyhow::Result;
 use std::collections::HashSet;
 
-pub fn run1(input: &str) -> Result<()> {
+fn run1(input: &str) -> Result<String> {
     let mut visibles = HashSet::new();
     let field_size = input.lines().count();
     let mut col_max_heights = vec![];
@@ -65,9 +66,7 @@ pub fn run1(input: &str) -> Result<()> {
         }
     }
 
-    println!("Visible trees: {}", visibles.len());
-
-    Ok(())
+    Ok(visibles.len().to_string())
 }
 
 fn scenic_score(forest: &[Vec<usize>], row: usize, col: usize) -> usize {
@@ -119,34 +118,38 @@ fn scenic_score(forest: &[Vec<usize>], row: usize, col: usize) -> usize {
     score * current
 }
 
-fn run2(input: &str) -> Result<()> {
-    let mut max_score = 0;
-    let field_size = input.lines().count();
-    let forest: Vec<Vec<usize>> = input
-        .lines()
-        .map(|s| {
-            s.chars()
-                .map(|c| c.to_string().parse::<usize>().unwrap())
-                .collect::<Vec<usize>>()
-        })
-        .collect();
-    for row in 0..field_size {
-        for col in 0..field_size {
-            let score = scenic_score(&forest, row, col);
-            if score > max_score {
-                max_score = score;
-            }
-        }
+pub struct Day8;
+
+impl AdventOfCode for Day8 {
+    fn day(&self) -> u8 {
+        8
     }
 
-    println!("Best tree: {}", max_score);
+    fn run1(&mut self, input: Option<String>) -> Result<String> {
+        run1(&input.unwrap())
+    }
 
-    Ok(())
-}
+    fn run2(&mut self, input: Option<String>) -> Result<String> {
+        let mut max_score = 0;
+        let field_size = input.as_ref().unwrap().lines().count();
+        let forest: Vec<Vec<usize>> = input
+            .unwrap()
+            .lines()
+            .map(|s| {
+                s.chars()
+                    .map(|c| c.to_string().parse::<usize>().unwrap())
+                    .collect::<Vec<usize>>()
+            })
+            .collect();
+        for row in 0..field_size {
+            for col in 0..field_size {
+                let score = scenic_score(&forest, row, col);
+                if score > max_score {
+                    max_score = score;
+                }
+            }
+        }
 
-pub fn run(input: &str) -> Result<()> {
-    run1(input)?;
-    run2(input)?;
-
-    Ok(())
+        Ok(max_score.to_string())
+    }
 }

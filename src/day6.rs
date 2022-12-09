@@ -1,3 +1,4 @@
+use crate::traits::AdventOfCode;
 use anyhow::{Context, Result};
 use std::collections::HashSet;
 
@@ -10,9 +11,24 @@ fn find_marker(input: &str, len: usize) -> Result<usize> {
         .context(format!("Cannot find marker in '{}'", input))
 }
 
-pub fn run(input: &str) -> Result<()> {
-    println!("Packet start: {}", find_marker(input, 4)?);
-    println!("Message start: {}", find_marker(input, 14)?);
+pub struct Day6;
 
-    Ok(())
+impl AdventOfCode for Day6 {
+    fn day(&self) -> u8 {
+        6
+    }
+
+    fn run1(&mut self, input: Option<String>) -> Result<String> {
+        match find_marker(&input.unwrap(), 4) {
+            Ok(t) => Ok(t.to_string()),
+            Err(e) => Err(e),
+        }
+    }
+
+    fn run2(&mut self, input: Option<String>) -> Result<String> {
+        match find_marker(&input.unwrap(), 14) {
+            Ok(t) => Ok(t.to_string()),
+            Err(e) => Err(e),
+        }
+    }
 }

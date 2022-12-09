@@ -1,19 +1,18 @@
-use std::str::FromStr;
+use crate::traits::AdventOfCode;
 use anyhow::Result;
+use std::str::FromStr;
 
 struct Rucksack {
-    compartments: String
+    compartments: String,
 }
 
 impl FromStr for Rucksack {
-    type Err = String;
+    type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let compartments = s.to_string();
 
-        Ok(Rucksack {
-            compartments
-        })
+        Ok(Rucksack { compartments })
     }
 }
 
@@ -37,7 +36,7 @@ impl Rucksack {
     }
 
     fn priority(item: u8) -> u8 {
-        return if (item as char).is_lowercase() {
+        if (item as char).is_lowercase() {
             item - 'a' as u8 + 1
         } else if (item as char).is_uppercase() {
             item - 'A' as u8 + 27
@@ -60,22 +59,35 @@ impl Rucksack {
     }
 }
 
-pub fn run(input: &str) -> Result<()> {
-    let mut priorities = 0;
-    let mut stickers = 0;
-    let mut group = vec![];
-    for line in input.split("\n") {
-        let rucksack: Rucksack = line.parse().unwrap();
-        priorities += rucksack.common() as usize;
-        group.push(rucksack);
-        if group.len() == 3 {
-            stickers += Rucksack::sticker(&group[0], &group[1], &group[2]) as usize;
-            group.clear();
-        }
+pub struct Day3;
+
+impl AdventOfCode for Day3 {
+    fn day(&self) -> u8 {
+        3
     }
 
-    println!("Priority sum = {}", priorities);
-    println!("Stickers sum = {}", stickers);
+    fn run1(&mut self, input: Option<String>) -> Result<String> {
+        let mut priorities = 0;
+        for line in input.unwrap().lines() {
+            let rucksack: Rucksack = line.parse()?;
+            priorities += rucksack.common() as usize;
+        }
 
-    Ok(())
+        Ok(priorities.to_string())
+    }
+
+    fn run2(&mut self, input: Option<String>) -> Result<String> {
+        let mut stickers = 0;
+        let mut group = vec![];
+        for line in input.unwrap().lines() {
+            let rucksack: Rucksack = line.parse()?;
+            group.push(rucksack);
+            if group.len() == 3 {
+                stickers += Rucksack::sticker(&group[0], &group[1], &group[2]) as usize;
+                group.clear();
+            }
+        }
+
+        Ok(stickers.to_string())
+    }
 }
