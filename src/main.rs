@@ -5,6 +5,7 @@ use std::time::Instant;
 use traits::AdventOfCode;
 
 mod day1;
+mod day10;
 mod day2;
 mod day3;
 mod day4;
@@ -36,6 +37,7 @@ fn main() -> Result<()> {
         Box::new(day7::Day7),
         Box::new(day8::Day8),
         Box::new(day9::Day9),
+        Box::new(day10::Day10),
     ];
 
     for e in exercises.iter_mut() {
