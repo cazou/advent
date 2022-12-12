@@ -38,6 +38,7 @@ mod day7;
 mod day8;
 mod day9;
 mod traits;
+mod day11;
 
 fn get_input(year: u16, day: u8) -> Result<String> {
     let mut input = String::new();
@@ -89,6 +90,7 @@ fn main() -> Result<()> {
         Box::new(day8::Day8),
         Box::new(day9::Day9),
         Box::new(day10::Day10),
+        Box::new(day11::Day11),
     ];
 
     for e in exercises.iter_mut() {
