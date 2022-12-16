@@ -32,6 +32,7 @@ mod day10;
 mod day11;
 mod day12;
 mod day13;
+mod day14;
 mod day2;
 mod day3;
 mod day4;
@@ -95,6 +96,7 @@ fn main() -> Result<()> {
         Box::new(day11::Day11),
         Box::new(day12::Day12),
         Box::new(day13::Day13),
+        Box::new(day14::Day14),
     ];
 
     for e in exercises.iter_mut() {
