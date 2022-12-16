@@ -2,7 +2,7 @@ use crate::traits::AdventOfCode;
 use anyhow::Result;
 use std::cell::RefCell;
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::BinaryHeap;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
 use std::str::FromStr;
@@ -10,7 +10,7 @@ use std::str::FromStr;
 #[derive(Default, Debug)]
 struct Node {
     pub height: i8,
-    pub distance: usize,
+    pub distance: Option<usize>,
     pub neighbors: Vec<Rc<RefCell<Node>>>,
     id: [usize; 2],
 }
@@ -65,7 +65,7 @@ impl FromStr for Map {
                     'S' => {
                         let pos = Rc::new(RefCell::new(Node {
                             height: 0,
-                            distance: 0,
+                            distance: Some(0),
                             id: [x, y],
                             ..Default::default()
                         }));
@@ -76,7 +76,7 @@ impl FromStr for Map {
                     'E' => {
                         let pos = Rc::new(RefCell::new(Node {
                             height: 25,
-                            distance: usize::MAX,
+                            distance: None,
                             id: [x, y],
                             ..Default::default()
                         }));
@@ -86,7 +86,7 @@ impl FromStr for Map {
                     h => {
                         let pos = Rc::new(RefCell::new(Node {
                             height: h as i8 - 'a' as i8,
-                            distance: usize::MAX,
+                            distance: None,
                             id: [x, y],
                             ..Default::default()
                         }));
@@ -139,21 +139,19 @@ impl Map {
         node.neighbors = ret;
     }
 
-    pub fn find_path(&self, start: Rc<RefCell<Node>>) -> usize {
+    pub fn find_path(&self, start: Rc<RefCell<Node>>) -> Option<usize> {
         let mut queue = BinaryHeap::new();
-        let mut dists = HashMap::new();
 
         // Reinit the nodes distance
         for l in &self.map {
             for node in l {
-                node.borrow_mut().distance = usize::MAX;
+                node.borrow_mut().distance = None;
             }
         }
 
-        start.borrow_mut().distance = 0;
+        start.borrow_mut().distance = Some(0);
 
         queue.push(start.clone());
-        dists.insert(start.borrow().id, 0);
 
         while let Some(n) = queue.pop() {
             if n == self.end {
@@ -161,26 +159,20 @@ impl Map {
             }
 
             for neigh in &n.borrow().neighbors {
-                if dists.contains_key(&neigh.borrow().id) {
-                    //TODO: Use an Option<usize> in distance instead.
+                if neigh.borrow().distance.is_some() {
                     continue;
                 }
 
-                let c_dist = dists[&n.borrow().id] + 1;
-                neigh.borrow_mut().distance = c_dist;
-                dists.insert(neigh.borrow().id, c_dist);
+                let c_dist = n.borrow().distance.unwrap() + 1;
+                neigh.borrow_mut().distance = Some(c_dist);
                 queue.push(neigh.clone());
             }
         }
 
-        if dists.contains_key(&self.end.borrow().id) {
-            dists[&self.end.borrow().id]
-        } else {
-            usize::MAX
-        }
+        self.end.borrow().distance
     }
 
-    pub fn run1(&self) -> usize {
+    pub fn run1(&self) -> Option<usize> {
         self.find_path(Rc::clone(&self.start))
     }
 
@@ -189,8 +181,10 @@ impl Map {
         let mut min = usize::MAX;
         for s in &self.starts {
             let r = self.find_path(Rc::clone(s));
-            if r < min {
-                min = r;
+            if let Some(m) = r {
+                if m < min {
+                    min = m;
+                }
             }
         }
 
@@ -207,7 +201,7 @@ impl AdventOfCode for Day12 {
 
     fn run1(&mut self, input: Option<String>) -> Result<String> {
         let map: Map = input.unwrap().parse()?;
-        Ok(map.run1().to_string())
+        Ok(map.run1().unwrap().to_string())
     }
 
     fn run2(&mut self, input: Option<String>) -> Result<String> {
