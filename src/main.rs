@@ -28,19 +28,6 @@ struct Args {
 }
 
 mod day1;
-mod day10;
-mod day11;
-mod day12;
-mod day13;
-mod day14;
-mod day2;
-mod day3;
-mod day4;
-mod day5;
-mod day6;
-mod day7;
-mod day8;
-mod day9;
 mod traits;
 
 fn get_input(year: u16, day: u8) -> Result<String> {
@@ -82,22 +69,7 @@ fn main() -> Result<()> {
         todo!()
     }
 
-    let mut exercises: Vec<Box<dyn AdventOfCode>> = vec![
-        Box::new(day1::Day1),
-        Box::new(day2::Day2),
-        Box::new(day3::Day3),
-        Box::new(day4::Day4),
-        Box::new(day5::Day5),
-        Box::new(day6::Day6),
-        Box::new(day7::Day7),
-        Box::new(day8::Day8),
-        Box::new(day9::Day9),
-        Box::new(day10::Day10),
-        Box::new(day11::Day11),
-        Box::new(day12::Day12),
-        Box::new(day13::Day13),
-        Box::new(day14::Day14),
-    ];
+    let mut exercises: Vec<Box<dyn AdventOfCode>> = vec![Box::new(day1::Day1)];
 
     for e in exercises.iter_mut() {
         if let Some(d) = args.day {
@@ -108,13 +80,13 @@ fn main() -> Result<()> {
 
         if args.part.is_none() || args.part.unwrap() == 1 {
             let start = Instant::now();
-            let result = e.run1(get_input(2022, e.day()).ok())?;
+            let result = e.run1(get_input(2023, e.day()).ok())?;
             print_result(e.day(), 1, &start.elapsed(), &result);
         }
 
         if args.part.is_none() || args.part.unwrap() == 2 {
             let start = Instant::now();
-            let result = e.run2(get_input(2022, e.day()).ok())?;
+            let result = e.run2(get_input(2023, e.day()).ok())?;
             print_result(e.day(), 2, &start.elapsed(), &result);
         }
     }
