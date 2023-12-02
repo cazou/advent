@@ -28,6 +28,7 @@ struct Args {
 }
 
 mod day1;
+mod day2;
 mod traits;
 
 fn get_input(year: u16, day: u8) -> Result<String> {
@@ -69,7 +70,8 @@ fn main() -> Result<()> {
         todo!()
     }
 
-    let mut exercises: Vec<Box<dyn AdventOfCode>> = vec![Box::new(day1::Day1)];
+    let mut exercises: Vec<Box<dyn AdventOfCode>> =
+        vec![Box::new(day1::Day1), Box::new(day2::Day2)];
 
     for e in exercises.iter_mut() {
         if let Some(d) = args.day {
