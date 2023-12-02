@@ -1,11 +1,12 @@
 use crate::traits::AdventOfCode;
 use anyhow::Result;
+use std::str::FromStr;
 
-pub struct Day;
+pub struct Day{{ $day }};
 
-impl AdventOfCode for Day {
+impl AdventOfCode for Day{{ $day }} {
     fn day(&self) -> u8 {
-        0
+        {{ $day }}
     }
 
     fn run1(&mut self, input: Option<String>) -> Result<String> {

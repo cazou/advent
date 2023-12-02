@@ -1,8 +1,11 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 use clap::Parser;
 use colored::Colorize;
-use std::fs::OpenOptions;
-use std::io::Read;
+use reqwest;
+use reqwest::header::{HeaderMap, HeaderValue};
+use std::fs::{read_to_string, File, OpenOptions};
+use std::io::{Read, Write};
+use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use traits::AdventOfCode;
 
@@ -21,6 +24,10 @@ struct Args {
     /// Setup the boiler plate + input for the given new day
     #[arg(long, value_parser = clap::value_parser!(u8).range(1..=25))]
     new_day: Option<u8>,
+
+    /// Cookie for the adventofcode.com input
+    #[arg(long, short)]
+    cookie: Option<String>,
 
     /// Use the example input if available in input/YYY-DD-example.txt
     #[arg(long, short)]
@@ -62,12 +69,66 @@ fn print_result(day: u8, part: u8, elapsed: &Duration, result: &str) {
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    if let Some(_) = args.new_day {
-        // add src/day{d}.rs from template
-        // download input and put it in input/2022-{d}.txt
-        // modify this file to add the module (TBC)
-        //return Ok(());
-        todo!()
+    if let Some(day) = args.new_day {
+        // Create Source file from template
+        let dst = PathBuf::from(format!("src/day{}.rs", day));
+        if dst.exists() {
+            bail!("{dst:?} already exists");
+        }
+
+        let source = read_to_string(PathBuf::from("templates/dayN.tpl"))?;
+
+        let mut dst_file = File::create(dst)?;
+        dst_file.write_all(
+            source
+                .replace("{{ $day }}", day.to_string().as_str())
+                .as_bytes(),
+        )?;
+
+        // Import module in main.rs and add in list
+        let main_src = read_to_string("src/main.rs")?;
+        let new_src = main_src
+            .replace(
+                format!("Box::new(day{}::Day{})", day - 1, day - 1).as_str(),
+                format!(
+                    "Box::new(day{}::Day{}), Box::new(day{}::Day{})",
+                    day - 1,
+                    day - 1,
+                    day,
+                    day
+                )
+                .as_str(),
+            )
+            .replace(
+                format!("mod day{};", day - 1).as_str(),
+                format!("mod day{};\nmod day{};", day - 1, day).as_str(),
+            );
+
+        // This will truncate the file
+        let mut main_file = File::create("src/main.rs")?;
+        main_file.write_all(new_src.as_bytes())?;
+
+        // Download exercise input
+        if let Some(cookie) = args.cookie {
+            let url = format!("https://adventofcode.com/2023/day/{}/input", day);
+            let client = reqwest::blocking::Client::new();
+            let mut headers = HeaderMap::new();
+            headers.insert("Cookie", HeaderValue::from_str(cookie.as_str()).unwrap());
+
+            let res = client.get(url).headers(headers).send()?;
+            if !res.status().is_success() {
+                bail!(
+                    "Could not retrieve the input: {} ({})",
+                    res.status(),
+                    res.text()?
+                )
+            }
+            let mut input_file = File::create(format!("inputs/2023-{day:02}.txt"))?;
+
+            input_file.write_all(res.bytes()?.as_ref())?;
+        }
+
+        return Ok(());
     }
 
     let mut exercises: Vec<Box<dyn AdventOfCode>> =
