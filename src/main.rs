@@ -36,13 +36,19 @@ struct Args {
 
 mod day1;
 mod day2;
+mod day3;
 mod traits;
 
-fn get_input(year: u16, day: u8) -> Result<String> {
+fn get_input(year: u16, day: u8, example: bool) -> Result<String> {
     let mut input = String::new();
     OpenOptions::new()
         .read(true)
-        .open(format!("inputs/{}-{:02}.txt", year, day))?
+        .open(format!(
+            "inputs/{}-{:02}{}.txt",
+            year,
+            day,
+            if example { "-example" } else { "" }
+        ))?
         .read_to_string(&mut input)?;
 
     Ok(input)
@@ -131,8 +137,11 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    let mut exercises: Vec<Box<dyn AdventOfCode>> =
-        vec![Box::new(day1::Day1), Box::new(day2::Day2)];
+    let mut exercises: Vec<Box<dyn AdventOfCode>> = vec![
+        Box::new(day1::Day1),
+        Box::new(day2::Day2),
+        Box::new(day3::Day3),
+    ];
 
     for e in exercises.iter_mut() {
         if let Some(d) = args.day {
@@ -143,13 +152,13 @@ fn main() -> Result<()> {
 
         if args.part.is_none() || args.part.unwrap() == 1 {
             let start = Instant::now();
-            let result = e.run1(get_input(2023, e.day()).ok())?;
+            let result = e.run1(get_input(2023, e.day(), args.example).ok())?;
             print_result(e.day(), 1, &start.elapsed(), &result);
         }
 
         if args.part.is_none() || args.part.unwrap() == 2 {
             let start = Instant::now();
-            let result = e.run2(get_input(2023, e.day()).ok())?;
+            let result = e.run2(get_input(2023, e.day(), args.example).ok())?;
             print_result(e.day(), 2, &start.elapsed(), &result);
         }
     }
