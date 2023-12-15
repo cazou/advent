@@ -70,30 +70,6 @@ impl FromStr for Network {
 }
 
 impl Network {
-    pub fn navigate(&self) -> Result<usize> {
-        let mut next_node = &self.paths["AAA"];
-        let mut found = false;
-        let mut steps = 0;
-
-        while !found {
-            for turn in &self.turns {
-                steps += 1;
-                let idx = match *turn {
-                    'L' => 0,
-                    'R' => 1,
-                    _ => bail!("Wrong instruction: {turn}"),
-                };
-                if next_node[idx] == "ZZZ" {
-                    found = true;
-                    break;
-                }
-                next_node = &self.paths[&next_node[idx]]
-            }
-        }
-
-        Ok(steps)
-    }
-
     fn make_node(
         existing_nodes: &mut HashMap<String, Rc<RefCell<Node>>>,
         paths: &mut HashMap<String, Vec<String>>,
@@ -135,6 +111,37 @@ impl Network {
 
     fn lcm(vals: &[usize]) -> usize {
         vals.iter().fold(1, |a, v| a.lcm(v))
+    }
+
+    pub fn navigate(&self) -> Result<usize> {
+        let mut next_node = Rc::clone(
+            self.start_nodes
+                .iter()
+                .find(|n| n.borrow().name == "AAA")
+                .unwrap(),
+        );
+        let mut found = false;
+        let mut steps = 0;
+
+        while !found {
+            for turn in &self.turns {
+                steps += 1;
+                let new_node = match *turn {
+                    'L' => Rc::clone(&next_node.borrow().left.as_ref().unwrap()),
+                    'R' => Rc::clone(&next_node.borrow().right.as_ref().unwrap()),
+                    _ => bail!("Wrong instruction: {turn}"),
+                };
+
+                next_node = new_node;
+
+                if next_node.borrow().name == "ZZZ" {
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        Ok(steps)
     }
 
     pub fn navigate_lcm(&self) -> Result<usize> {
@@ -179,7 +186,8 @@ impl AdventOfCode for Day8 {
     }
 
     fn run1(&mut self, input: Option<String>) -> Result<String> {
-        let network: Network = input.unwrap().parse()?;
+        let mut network: Network = input.unwrap().parse()?;
+        network.build_network();
         Ok(network.navigate().unwrap().to_string())
     }
 

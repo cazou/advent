@@ -42,6 +42,8 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
+mod day10;
 mod traits;
 
 fn get_input(year: u16, day: u8, example: bool) -> Result<String> {
@@ -145,7 +147,7 @@ fn main() -> Result<()> {
     let mut exercises: Vec<Box<dyn AdventOfCode>> = vec![
         Box::new(day1::Day1),
         Box::new(day2::Day2),
-        Box::new(day3::Day3), Box::new(day4::Day4), Box::new(day5::Day5), Box::new(day6::Day6), Box::new(day7::Day7), Box::new(day8::Day8),
+        Box::new(day3::Day3), Box::new(day4::Day4), Box::new(day5::Day5), Box::new(day6::Day6), Box::new(day7::Day7), Box::new(day8::Day8), Box::new(day9::Day9), Box::new(day10::Day10),
     ];
 
     for e in exercises.iter_mut() {
