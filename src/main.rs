@@ -35,6 +35,7 @@ struct Args {
 }
 
 mod day1;
+mod day2;
 mod traits;
 
 fn get_input(year: u16, day: u8, example: bool) -> Result<String> {
@@ -136,7 +137,7 @@ fn main() -> Result<()> {
     }
 
     let mut exercises: Vec<Box<dyn AdventOfCode>> = vec![
-        Box::new(day1::Day1),
+        Box::new(day1::Day1), Box::new(day2::Day2),
     ];
 
     for e in exercises.iter_mut() {
