@@ -35,16 +35,6 @@ struct Args {
 }
 
 mod day1;
-mod day2;
-mod day3;
-mod day4;
-mod day5;
-mod day6;
-mod day7;
-mod day8;
-mod day9;
-mod day10;
-mod day11;
 mod traits;
 
 fn get_input(year: u16, day: u8, example: bool) -> Result<String> {
@@ -124,7 +114,7 @@ fn main() -> Result<()> {
 
         // Download exercise input
         if let Some(cookie) = args.cookie {
-            let url = format!("https://adventofcode.com/2023/day/{}/input", day);
+            let url = format!("https://adventofcode.com/2025/day/{}/input", day);
             let client = reqwest::blocking::Client::new();
             let mut headers = HeaderMap::new();
             headers.insert("Cookie", HeaderValue::from_str(cookie.as_str()).unwrap());
@@ -137,7 +127,7 @@ fn main() -> Result<()> {
                     res.text()?
                 )
             }
-            let mut input_file = File::create(format!("inputs/2023-{day:02}.txt"))?;
+            let mut input_file = File::create(format!("inputs/2025-{day:02}.txt"))?;
 
             input_file.write_all(res.bytes()?.as_ref())?;
         }
@@ -147,8 +137,6 @@ fn main() -> Result<()> {
 
     let mut exercises: Vec<Box<dyn AdventOfCode>> = vec![
         Box::new(day1::Day1),
-        Box::new(day2::Day2),
-        Box::new(day3::Day3), Box::new(day4::Day4), Box::new(day5::Day5), Box::new(day6::Day6), Box::new(day7::Day7), Box::new(day8::Day8), Box::new(day9::Day9), Box::new(day10::Day10), Box::new(day11::Day11),
     ];
 
     for e in exercises.iter_mut() {
@@ -160,13 +148,13 @@ fn main() -> Result<()> {
 
         if args.part.is_none() || args.part.unwrap() == 1 {
             let start = Instant::now();
-            let result = e.run1(get_input(2023, e.day(), args.example).ok())?;
+            let result = e.run1(get_input(2025, e.day(), args.example).ok())?;
             print_result(e.day(), 1, &start.elapsed(), &result);
         }
 
         if args.part.is_none() || args.part.unwrap() == 2 {
             let start = Instant::now();
-            let result = e.run2(get_input(2023, e.day(), args.example).ok())?;
+            let result = e.run2(get_input(2025, e.day(), args.example).ok())?;
             print_result(e.day(), 2, &start.elapsed(), &result);
         }
     }
