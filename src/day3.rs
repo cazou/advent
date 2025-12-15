@@ -1,6 +1,5 @@
 use crate::traits::AdventOfCode;
 use anyhow::Result;
-use std::str::FromStr;
 
 pub struct Day3;
 
