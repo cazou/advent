@@ -37,6 +37,7 @@ struct Args {
 mod day1;
 mod day10;
 mod day11;
+mod day12;
 mod day2;
 mod day3;
 mod day4;
@@ -157,6 +158,7 @@ fn main() -> Result<()> {
         Box::new(day9::Day9),
         Box::new(day10::Day10),
         Box::new(day11::Day11),
+        Box::new(day12::Day12),
     ];
 
     for e in exercises.iter_mut() {
