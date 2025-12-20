@@ -9,6 +9,8 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use traits::AdventOfCode;
 
+const YEAR: u16 = 2025;
+
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -24,6 +26,9 @@ struct Args {
     /// Setup the boiler plate + input for the given new day
     #[arg(long, value_parser = clap::value_parser!(u8).range(1..=25))]
     new_day: Option<u8>,
+
+    #[arg(long, short)]
+    fetch_input: bool,
 
     /// Cookie for the adventofcode.com input
     #[arg(long, short)]
@@ -81,6 +86,27 @@ fn print_result(day: u8, part: u8, elapsed: &Duration, result: &str) {
     println!();
 }
 
+fn fetch_input(day: u8, cookie: &str) -> Result<()> {
+        let url = format!("https://adventofcode.com/{YEAR}/day/{day}/input");
+        let client = reqwest::blocking::Client::new();
+        let mut headers = HeaderMap::new();
+        headers.insert("Cookie", HeaderValue::from_str(cookie)?);
+
+        let res = client.get(url).headers(headers).send()?;
+        if !res.status().is_success() {
+            bail!(
+                "Could not retrieve the input: {} ({})",
+                res.status(),
+                res.text()?
+            )
+        }
+        let mut input_file = File::create(format!("inputs/{YEAR}-{day:02}.txt"))?;
+
+        input_file.write_all(res.bytes()?.as_ref())?;
+
+        Ok(())
+}
+
 fn main() -> Result<()> {
     let args = Args::parse();
 
@@ -125,22 +151,30 @@ fn main() -> Result<()> {
 
         // Download exercise input
         if let Some(cookie) = args.cookie {
-            let url = format!("https://adventofcode.com/2025/day/{}/input", day);
-            let client = reqwest::blocking::Client::new();
-            let mut headers = HeaderMap::new();
-            headers.insert("Cookie", HeaderValue::from_str(cookie.as_str()).unwrap());
+            fetch_input(day, &cookie)?;
+        }
 
-            let res = client.get(url).headers(headers).send()?;
-            if !res.status().is_success() {
-                bail!(
-                    "Could not retrieve the input: {} ({})",
-                    res.status(),
-                    res.text()?
-                )
+        return Ok(());
+    }
+
+    if args.fetch_input {
+        if let Some(cookie) = args.cookie {
+            if let Some(day) = args.day {
+                fetch_input(day, &cookie)?;
+            } else {
+                // TODO: Only fetch until today
+                for day in 1..=24 {
+                    match fetch_input(day, &cookie) {
+                        Ok(_) => println!("Fetched day {day}"),
+                        Err(e) => println!("Cannot fetch day {day}: {e}"),
+                    }
+                    if fetch_input(day, &cookie).is_err() {
+                        break;
+                    }
+                }
             }
-            let mut input_file = File::create(format!("inputs/2025-{day:02}.txt"))?;
-
-            input_file.write_all(res.bytes()?.as_ref())?;
+        } else {
+            println!("Cannot fetch input without --cookie");
         }
 
         return Ok(());
@@ -170,13 +204,13 @@ fn main() -> Result<()> {
 
         if args.part.is_none() || args.part.unwrap() == 1 {
             let start = Instant::now();
-            let result = e.run1(get_input(2025, e.day(), args.example).ok())?;
+            let result = e.run1(get_input(YEAR, e.day(), args.example).ok())?;
             print_result(e.day(), 1, &start.elapsed(), &result);
         }
 
         if args.part.is_none() || args.part.unwrap() == 2 {
             let start = Instant::now();
-            let result = e.run2(get_input(2025, e.day(), args.example).ok())?;
+            let result = e.run2(get_input(YEAR, e.day(), args.example).ok())?;
             print_result(e.day(), 2, &start.elapsed(), &result);
         }
     }
